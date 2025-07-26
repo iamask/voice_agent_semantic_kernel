@@ -1,0 +1,10 @@
+# OpenAI API Configuration
+OPENAI_API_KEY='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'
+OPENAI_CHAT_MODEL_ID=gpt-4o-mini
+OPENAI_AUDIO_MODEL_ID=whisper-1
+OPENAI_TTS_MODEL_ID=tts-1
+
+# Optional: Azure OpenAI Configuration (if using Azure instead of OpenAI)
+# AZURE_OPENAI_API_KEY=your_azure_openai_key_here
+# AZURE_OPENAI_ENDPOINT=your_azure_endpoint_here
+# AZURE_OPENAI_DEPLOYMENT=your_deployment_name_here 

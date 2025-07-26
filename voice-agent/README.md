@@ -1,0 +1,228 @@
+# Voice Agent Project
+
+A complete voice agent built with Python and OpenAI that provides natural voice interaction with AI.
+
+## 🎯 Features
+
+- **Voice Input**: Record audio using your microphone (Enter key to start/stop)
+- **Speech-to-Text**: Convert speech to text using OpenAI's Whisper
+- **AI Chat**: Get intelligent responses using OpenAI's GPT models
+- **Text-to-Speech**: Convert AI responses back to speech using OpenAI's TTS
+- **Conversation History**: Maintains context across interactions
+
+## 🤖 Multi-Modal AI Integration
+
+This voice agent demonstrates **multi-modal AI capabilities** using Semantic Kernel:
+
+- **Audio → Text**: Speech recognition via OpenAI Whisper
+- **Text → Intelligence**: Natural language processing via GPT-4o-mini
+- **Text → Audio**: Voice synthesis via OpenAI TTS
+- **Context Preservation**: Seamless conversation flow across all modalities
+
+The system uses Semantic Kernel's connector architecture to unify three different AI services into a single conversational experience.
+
+## 🔄 Voice Agent Flow
+
+```mermaid
+flowchart TD
+    A[User Speaks] --> B[AudioRecorder.record_audio<br/>PyAudio Stream]
+    B --> C[AudioRecorder.save_audio<br/>WAV File]
+    C --> D[OpenAIAudioToText.get_text_content<br/>Whisper-1]
+    D --> E[record_and_transcribe<br/>Text Output]
+    E --> F[OpenAIChatCompletion.get_chat_message_content<br/>GPT-4o-mini]
+    F --> G[get_ai_response<br/>Response Text]
+    G --> H[OpenAITextToAudio.get_audio_content<br/>TTS-1]
+    H --> I[speak_response<br/>Audio Data]
+    I --> J[AudioPlayer.play_audio<br/>PyAudio Output]
+    J --> K[ChatHistory.add_assistant_message<br/>Context Update]
+    K --> A
+
+    style A fill:#e1f5fe
+    style E fill:#f3e5f5
+    style G fill:#e8f5e8
+    style J fill:#fff3e0
+```
+
+## 📁 Project Structure
+
+```
+voice-agent/
+├── voice_agent.py          # Voice agent (Enter-based)
+├── test_setup.py           # Setup verification script
+├── requirements.txt         # Python dependencies
+├── env_example.txt         # Environment configuration template
+└── README.md              # This file
+```
+
+## 🚀 Quick Start
+
+### Prerequisites
+
+- Python 3.10 or higher
+- OpenAI API key
+- Microphone and speakers/headphones
+- macOS (for keyboard input support)
+
+### Installation
+
+1. **Create a virtual environment**:
+
+   ```bash
+   python3 -m venv voice_agent_env
+   source voice_agent_env/bin/activate
+   ```
+
+2. **Install dependencies**:
+
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+3. **Install PortAudio** (required for PyAudio):
+
+   ```bash
+   brew install portaudio
+   ```
+
+4. **OpenAI API Key** (Optional):
+   The API key is automatically set in the script. For production use, you can set your own:
+   ```bash
+   export OPENAI_API_KEY="your-api-key-here"
+   ```
+
+### Usage
+
+```bash
+python voice_agent.py
+```
+
+- Press Enter to start recording
+- Speak for 5 seconds
+- Listen to the AI response
+- Type 'exit' and press Enter to quit
+
+**Note**: The OpenAI API key is automatically set in the script - no manual setup required!
+
+## 🧪 Testing
+
+Run the test script to verify your setup:
+
+```bash
+python test_setup.py
+```
+
+This will check:
+
+- ✅ Python version compatibility
+- ✅ All required imports
+- ✅ Audio device availability
+- ✅ Environment variables
+
+## 🔧 Configuration
+
+### Environment Variables
+
+Create a `.env` file based on `env_example.txt`:
+
+```bash
+cp env_example.txt .env
+# Edit .env with your OpenAI API key
+```
+
+### Customizing the AI Personality
+
+Edit the system prompt in either voice agent file:
+
+```python
+agent = VoiceAgent(
+    system_prompt="You are a helpful voice assistant. Keep your responses concise and natural for voice interaction."
+)
+```
+
+## 🛠️ Troubleshooting
+
+### Common Issues
+
+1. **"No module named 'pyaudio'"**:
+
+   ```bash
+   brew install portaudio
+   pip install pyaudio
+   ```
+
+2. **"OPENAI_API_KEY not set"** (if using custom API key):
+
+   ```bash
+   export OPENAI_API_KEY="your-key-here"
+   ```
+
+   **Note**: The script automatically sets an API key. This error only appears if you're using a custom API key.
+
+3. **Audio recording issues**:
+
+   - Check microphone permissions
+   - Ensure microphone isn't used by other apps
+   - Try different input devices
+
+4. **Audio recording issues**:
+   - Check microphone permissions
+   - Ensure microphone isn't used by other apps
+   - Try different input devices
+
+### Audio Quality Tips
+
+- Use a good quality microphone
+- Speak clearly and at normal pace
+- Minimize background noise
+- Ensure proper microphone positioning
+
+## 🤖 AI Models Used
+
+The voice agent uses the following OpenAI models:
+
+- **GPT-4o-mini**: For AI chat completion and generating intelligent responses
+- **Whisper-1**: For speech-to-text conversion (audio transcription)
+- **TTS-1**: For text-to-speech conversion (voice synthesis)
+
+## 📚 Dependencies
+
+- **semantic-kernel**: Microsoft's Semantic Kernel for AI orchestration
+- **pyaudio**: Audio recording and playback
+- **openai**: OpenAI API client
+
+## 🎉 Features Working
+
+- ✅ Voice Input Recording
+- ✅ Speech-to-Text (OpenAI Whisper)
+- ✅ AI Chat (OpenAI GPT-4o-mini)
+- ✅ Text-to-Speech (OpenAI TTS)
+- ✅ Conversation History
+- ✅ Error Handling
+- ✅ Audio Device Detection
+
+## 📄 License
+
+This project is for educational purposes. Please ensure you comply with OpenAI's usage policies.
+
+## 🚀 Further Enhancements
+
+### Spacebar Recording Control
+
+For more intuitive voice control, consider implementing spacebar-based recording:
+
+- **Press and hold spacebar** to record
+- **Release spacebar** to stop recording
+- Requires `keyboard` library and accessibility permissions on macOS
+- Provides real-time recording control instead of fixed duration
+
+### Additional Features
+
+- **Voice wake word detection** for hands-free operation
+- **Custom voice models** for personalized speech synthesis
+- **Multi-language support** with automatic language detection
+- **Voice command shortcuts** for common actions
+- **Background noise reduction** for better audio quality
+
+## 🤝 Contributing
+
+Feel free to submit issues and enhancement requests!
