@@ -135,22 +135,30 @@ class SimpleVoiceAgent:
         Returns the transcribed text, or None if transcription fails.
         """
         try:
+            print("[DEBUG] 🎙️ Starting audio recording...")
             # Create a temporary file for the audio
             with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as temp_file:
                 temp_filename = temp_file.name
+            print(f"[DEBUG] 📁 Created temp file: {temp_filename}")
             print("Recording for 5 seconds... Speak now!")
             # Record audio for 5 seconds
             self.recorder.record_audio(duration=5)
+            print("[DEBUG] ✅ Audio recording completed")
             # Save the recorded audio to the temp file
             self.recorder.save_audio(temp_filename)
+            print("[DEBUG] 💾 Audio saved to temp file")
             # Convert audio to text using OpenAI Whisper
+            print("[DEBUG] 🧠 Sending audio to Whisper for transcription...")
             audio_content = AudioContent.from_audio_file(temp_filename)
             text_content = await self.audio_to_text.get_text_content(audio_content)
+            print(f"[DEBUG] 📝 Whisper transcription: '{text_content.text}'")
             # Clean up the temp file
             os.unlink(temp_filename)
+            print("[DEBUG] 🗑️ Temp file cleaned up")
             return text_content.text
         except Exception as e:
             logger.error(f"Error recording/transcribing: {e}")
+            print(f"[DEBUG] ❌ Transcription failed: {e}")
             return None
 
     async def get_ai_response(self, user_input: str) -> str:
@@ -159,9 +167,12 @@ class SimpleVoiceAgent:
         Maintains conversation history for context.
         """
         try:
+            print(f"[DEBUG] 💬 Adding user message to history: '{user_input}'")
             # Add user message to conversation history
             self.history.add_user_message(user_input)
+            print(f"[DEBUG] 📚 Chat history now has {len(self.history.messages)} messages")
             # Get AI response from OpenAI GPT
+            print("[DEBUG] 🤖 Sending request to GPT...")
             response = await self.chat_service.get_chat_message_content(
                 chat_history=self.history,
                 settings=OpenAIChatPromptExecutionSettings(
@@ -170,11 +181,14 @@ class SimpleVoiceAgent:
                     top_p=0.8,
                 ),
             )
+            print(f"[DEBUG] 🤖 GPT response: '{response.content}'")
             # Add assistant response to history
             self.history.add_assistant_message(response.content)
+            print(f"[DEBUG] 📚 Chat history updated: {len(self.history.messages)} messages")
             return response.content
         except Exception as e:
             logger.error(f"Error getting AI response: {e}")
+            print(f"[DEBUG] ❌ GPT request failed: {e}")
             return "I'm sorry, I encountered an error processing your request."
 
     async def speak_response(self, text: str):
@@ -182,15 +196,20 @@ class SimpleVoiceAgent:
         Convert the AI's text response to speech and play it using OpenAI TTS.
         """
         try:
+            print(f"[DEBUG] 🔊 Converting text to speech: '{text}'")
             # Convert text to audio using OpenAI TTS
             audio_content = await self.text_to_audio.get_audio_content(
                 text, 
                 OpenAITextToAudioExecutionSettings(response_format="wav")
             )
+            print(f"[DEBUG] 🔊 TTS generated {len(audio_content.data)} bytes of audio")
             # Play the audio response
+            print("[DEBUG] 🔊 Playing audio response...")
             self.player.play_audio(audio_content.data)
+            print("[DEBUG] 🔊 Audio playback completed")
         except Exception as e:
             logger.error(f"Error converting text to speech: {e}")
+            print(f"[DEBUG] ❌ TTS failed: {e}")
             print(f"Assistant: {text}")
 
     async def conversation_loop(self):
@@ -210,33 +229,45 @@ class SimpleVoiceAgent:
         print()
         while True:
             try:
+                print("[DEBUG] 🔄 Starting new conversation turn...")
                 # Wait for user to press Enter or type exit
                 user_choice = input("Press Enter to start recording (or type 'exit' to quit): ")
                 # Check for exit command in text input
                 if user_choice.lower().strip() == "exit":
+                    print("[DEBUG] 👋 User chose to exit via text input")
                     print("Goodbye!")
                     break
                 # Record and transcribe user input
+                print("[DEBUG] 🎙️ Starting audio processing pipeline...")
                 user_input = await self.record_and_transcribe()
                 if not user_input:
+                    print("[DEBUG] ❌ Transcription failed, continuing...")
                     print("Could not transcribe audio. Please try again.")
                     continue
+                print(f"[DEBUG] ✅ Transcription successful: '{user_input}'")
                 print(f"You said: {user_input}")
                 # Check for exit command in transcribed audio
                 if "exit" in user_input.lower():
+                    print("[DEBUG] 👋 User chose to exit via voice command")
                     print("Goodbye!")
                     break
                 # Get AI response
+                print("[DEBUG] 🤖 Starting AI response generation...")
                 response = await self.get_ai_response(user_input)
+                print(f"[DEBUG] ✅ AI response generated: '{response}'")
                 print(f"Assistant: {response}")
                 # Speak the response
+                print("[DEBUG] 🔊 Starting speech synthesis...")
                 await self.speak_response(response)
+                print("[DEBUG] ✅ Conversation turn completed")
                 print()
             except KeyboardInterrupt:
-                print("\nGoodbye!")
+                print("\n[DEBUG] 👋 User interrupted with Ctrl+C")
+                print("Goodbye!")
                 break
             except Exception as e:
                 logger.error(f"Error in conversation loop: {e}")
+                print(f"[DEBUG] ❌ Conversation loop error: {e}")
                 print("An error occurred. Please try again.")
 
     def cleanup(self):
@@ -255,28 +286,36 @@ async def main():
     - Starts the conversation loop
     - Cleans up resources on exit
     """
+    print("[DEBUG] 🚀 Starting Voice Agent...")
     # Load environment variables from .env file
     load_dotenv()
+    print("[DEBUG] 📄 Environment variables loaded")
     
     # Check if OpenAI API key is available
     if not os.getenv("OPENAI_API_KEY"):
+        print("[DEBUG] ❌ OpenAI API key not found")
         print("Error: OPENAI_API_KEY not found in environment variables.")
         print("Please create a .env file with your OpenAI API key:")
         print("OPENAI_API_KEY=your-api-key-here")
         return
     
-    print("OpenAI API key loaded from .env file.")
+    print("[DEBUG] ✅ OpenAI API key loaded from .env file.")
     
     # Create voice agent with a system prompt
+    print("[DEBUG] 🤖 Initializing Voice Agent...")
     agent = SimpleVoiceAgent(
         system_prompt="You are a helpful voice assistant. Keep your responses concise and natural for voice interaction."
     )
+    print("[DEBUG] ✅ Voice Agent initialized successfully")
     try:
         # Start the main conversation loop
+        print("[DEBUG] 🔄 Starting conversation loop...")
         await agent.conversation_loop()
     finally:
         # Clean up resources on exit
+        print("[DEBUG] 🧹 Cleaning up resources...")
         agent.cleanup()
+        print("[DEBUG] ✅ Cleanup completed")
 
 if __name__ == "__main__":
     asyncio.run(main()) 
