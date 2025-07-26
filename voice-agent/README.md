@@ -21,6 +21,67 @@ This voice agent demonstrates **multi-modal AI capabilities** using Semantic Ker
 
 The system uses Semantic Kernel's connector architecture to unify three different AI services into a single conversational experience.
 
+## 🧠 State & Context Management
+
+The voice agent maintains **conversation state and context** throughout the session using Semantic Kernel's `ChatHistory`:
+
+### **Conversation Memory**
+
+- **System Prompt**: Set once at initialization and maintained throughout the session
+- **User Messages**: All transcribed speech inputs are stored in conversation history
+- **Assistant Responses**: All AI-generated responses are added to the context
+- **Multi-turn Context**: Previous interactions are passed to GPT for coherent conversations
+
+### **State Lifecycle**
+
+```
+Session Start → ChatHistory Created → System Prompt Added
+     ↓
+User Speaks → Transcribed → Added to History → GPT Processes with Full Context
+     ↓
+AI Responds → Response Added to History → Context Grows
+     ↓
+Session Continues → All Previous Context Available
+```
+
+### **Context Example**
+
+```
+Turn 1: User: "What's the weather today?"
+         AI: "It's sunny and 75°F today."
+
+Turn 2: User: "Will it rain tomorrow?"
+         AI: "Based on the forecast, tomorrow will be cloudy with a 30% chance of rain."
+
+Turn 3: User: "Should I bring an umbrella?"
+         AI: "Yes, I'd recommend bringing an umbrella since there's a chance of rain tomorrow."
+```
+
+**Notice**: The AI remembers previous weather discussions and can reference them!
+
+### **State Limitations**
+
+- **In-Memory Only**: Chat history is not persisted between sessions
+- **Session-Based**: State is lost when the program restarts
+- **Single User**: No multi-user conversation isolation
+- **No Database**: No permanent storage of conversation history
+
+### **Technical Implementation**
+
+```python
+# ChatHistory object stores all conversation context
+self.history = ChatHistory()
+self.history.add_system_message(self.system_prompt)
+
+# Each interaction adds to the context
+self.history.add_user_message(user_input)
+response = await self.chat_service.get_chat_message_content(
+    chat_history=self.history,  # Full context passed to GPT
+    settings=OpenAIChatPromptExecutionSettings(...)
+)
+self.history.add_assistant_message(response.content)
+```
+
 ## 🔄 Voice Agent Flow
 
 ```mermaid
