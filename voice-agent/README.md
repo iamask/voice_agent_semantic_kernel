@@ -50,7 +50,7 @@ voice-agent/
 ├── voice_agent.py          # Voice agent (Enter-based)
 ├── test_setup.py           # Setup verification script
 ├── requirements.txt         # Python dependencies
-├── env_example.txt         # Environment configuration template
+├── .env                   # Environment configuration (OpenAI API key)
 └── README.md              # This file
 ```
 
@@ -84,10 +84,11 @@ voice-agent/
    brew install portaudio
    ```
 
-4. **OpenAI API Key** (Optional):
-   The API key is automatically set in the script. For production use, you can set your own:
-   ```bash
-   export OPENAI_API_KEY="your-api-key-here"
+4. **OpenAI API Key**:
+   The voice agent uses the existing `.env` file for configuration.
+   Make sure your `.env` file contains your OpenAI API key:
+   ```
+   OPENAI_API_KEY=your-openai-api-key-here
    ```
 
 ### Usage
@@ -101,7 +102,7 @@ python voice_agent.py
 - Listen to the AI response
 - Type 'exit' and press Enter to quit
 
-**Note**: The OpenAI API key is automatically set in the script - no manual setup required!
+**Note**: The voice agent will automatically load your OpenAI API key from the existing `.env` file.
 
 ## 🧪 Testing
 
@@ -122,11 +123,13 @@ This will check:
 
 ### Environment Variables
 
-Create a `.env` file based on `env_example.txt`:
+The voice agent uses the existing `.env` file for configuration. Make sure it contains:
 
-```bash
-cp env_example.txt .env
-# Edit .env with your OpenAI API key
+```
+OPENAI_API_KEY=your-openai-api-key-here
+OPENAI_CHAT_MODEL_ID=gpt-4o-mini
+OPENAI_AUDIO_MODEL_ID=whisper-1
+OPENAI_TTS_MODEL_ID=tts-1
 ```
 
 ### Customizing the AI Personality
@@ -150,13 +153,13 @@ agent = VoiceAgent(
    pip install pyaudio
    ```
 
-2. **"OPENAI_API_KEY not set"** (if using custom API key):
+2. **"OPENAI_API_KEY not found"**:
 
-   ```bash
-   export OPENAI_API_KEY="your-key-here"
+   Make sure your `.env` file contains your OpenAI API key:
+
    ```
-
-   **Note**: The script automatically sets an API key. This error only appears if you're using a custom API key.
+   OPENAI_API_KEY=your-openai-api-key-here
+   ```
 
 3. **Audio recording issues**:
 

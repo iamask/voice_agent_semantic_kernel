@@ -9,6 +9,7 @@ import asyncio
 import logging
 import tempfile
 from typing import Optional
+from dotenv import load_dotenv
 
 import pyaudio
 from semantic_kernel.connectors.ai.open_ai import (
@@ -118,9 +119,9 @@ class SimpleVoiceAgent:
     """
     def __init__(self, system_prompt: str = "You are a helpful voice assistant."):
         # Initialize OpenAI connectors via Semantic Kernel
-        self.chat_service = OpenAIChatCompletion(ai_model_id="gpt-4o-mini")
-        self.audio_to_text = OpenAIAudioToText(ai_model_id="whisper-1")
-        self.text_to_audio = OpenAITextToAudio(ai_model_id="tts-1")
+        self.chat_service = OpenAIChatCompletion(ai_model_id=os.getenv("OPENAI_CHAT_MODEL_ID", "gpt-4o-mini"))
+        self.audio_to_text = OpenAIAudioToText(ai_model_id=os.getenv("OPENAI_AUDIO_MODEL_ID", "whisper-1"))
+        self.text_to_audio = OpenAITextToAudio(ai_model_id=os.getenv("OPENAI_TTS_MODEL_ID", "tts-1"))
         self.history = ChatHistory()
         self.system_prompt = system_prompt
         self.recorder = AudioRecorder()
@@ -249,15 +250,23 @@ class SimpleVoiceAgent:
 async def main():
     """
     Main function:
-    - Sets OpenAI API key if not already set
+    - Loads environment variables from .env file
     - Creates the voice agent
     - Starts the conversation loop
     - Cleans up resources on exit
     """
-    # Set OpenAI API key if not already set
+    # Load environment variables from .env file
+    load_dotenv()
+    
+    # Check if OpenAI API key is available
     if not os.getenv("OPENAI_API_KEY"):
-        os.environ["OPENAI_API_KEY"] = "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"
-        print("OpenAI API key set automatically.")
+        print("Error: OPENAI_API_KEY not found in environment variables.")
+        print("Please create a .env file with your OpenAI API key:")
+        print("OPENAI_API_KEY=your-api-key-here")
+        return
+    
+    print("OpenAI API key loaded from .env file.")
+    
     # Create voice agent with a system prompt
     agent = SimpleVoiceAgent(
         system_prompt="You are a helpful voice assistant. Keep your responses concise and natural for voice interaction."
